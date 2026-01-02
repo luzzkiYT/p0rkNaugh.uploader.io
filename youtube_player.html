@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head><link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta charset="UTF-8">
+<title>YouTube Player Local</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f0f0f;
+  color: #fff;
+}
+
+/* TOPO */
+header {
+  background: #181818;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header button {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* LAYOUT */
+main {
+  display: flex;
+  height: calc(100vh - 50px);
+}
+
+/* PLAYER */
+#player {
+  flex: 3;
+  padding: 15px;
+}
+
+video, audio {
+  width: 100%;
+  max-height: 70vh;
+  background: #000;
+}
+
+/* LISTA */
+#sidebar {
+  flex: 1.2;
+  background: #121212;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+#sidebar input {
+  width: 100%;
+  padding: 6px;
+  margin-bottom: 10px;
+}
+
+.item {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #222;
+}
+
+.item:hover {
+  background: #272727;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div style="display:flex;align-items:center;gap:8px;">
+  <span style="font-size:22px;">▶️</span>
+  <strong>YouTube Player Local</strong>
+</div>
+</header>
+
+<main>
+  <div id="player">
+    <input type="file" id="fileInput" multiple accept="video/*,audio/*">
+    <br><br>
+
+    <video id="video" controls hidden></video>
+    <audio id="audio" controls hidden></audio>
+
+    <p id="info"></p>
+  </div>
+
+  <div id="sidebar">
+    <input type="text" id="search" placeholder="Pesquisar vídeo">
+    <div id="lista"></div>
+  </div>
+</main>
+
+<script>
+let midias = [];
+let atualNome = "";
+
+const fileInput = document.getElementById("fileInput");
+const lista = document.getElementById("lista");
+const search = document.getElementById("search");
+const video = document.getElementById("video");
+const audio = document.getElementById("audio");
+const info = document.getElementById("info");
+
+fileInput.addEventListener("change", e => {
+  midias = [...e.target.files];
+  render();
+});
+
+search.addEventListener("input", render);
+
+function render() {
+  lista.innerHTML = "";
+  const filtro = search.value.toLowerCase();
+
+  midias
+    .filter(m => m.name.toLowerCase().includes(filtro))
+    .forEach(m => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.textContent = m.name;
+      div.onclick = () => play(m);
+      lista.appendChild(div);
+    });
+}
+
+function play(file) {
+  atualNome = file.name;
+  const url = URL.createObjectURL(file);
+
+  info.textContent = "Arquivo selecionado: " + atualNome;
+
+  if (file.type.startsWith("video")) {
+    audio.hidden = true;
+    video.hidden = false;
+    video.src = url;
+    video.play();
+  } else {
+    video.hidden = true;
+    audio.hidden = false;
+    audio.src = url;
+    audio.play();
+  }
+}
+
+function abrirUpload() {
+  if (!atualNome) {
+    alert("Selecione um vídeo primeiro.");
+    return;
+  }
+
+  alert(
+    "Agora selecione este arquivo no YouTube:\n\n" +
+    atualNome
+  );
+
+  window.open("https://www.youtube.com/upload", "_blank");
+}
+</script>
+
+</body>
+</html>
